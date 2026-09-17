@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openshelf"
+version = "0.1.0"
+description = "A personal catalog and download manager for remote Calibre and OPDS libraries"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+  "Flask>=3.1,<4",
+  "waitress>=3,<4",
+  "requests>=2.32,<3",
+  "defusedxml>=0.7,<1",
+  "Pillow>=12,<13",
+]
+
+[project.urls]
+Homepage = "https://github.com/cosoloco/openshelf"
+Repository = "https://github.com/cosoloco/openshelf"
+Issues = "https://github.com/cosoloco/openshelf/issues"
+
+[project.scripts]
+openshelf = "openshelf.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["openshelf*"]
+
+[tool.setuptools.package-data]
+openshelf = ["templates/*.html", "static/*"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "playwright>=1.50,<2"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

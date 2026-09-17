@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#254b3b">
+  <meta name="csrf-token" content="{{ csrf }}">
+  <meta name="description" content="Discover books across the libraries you connect. Search, save, and download to your own computer.">
+  <title>Open Shelf · Discover your next read</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M3 4c3-1 6 0 9 2 3-2 6-3 9-2v15c-3-1-6 0-9 2-3-2-6-3-9-2Z M12 6v15"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="icon-lines" viewBox="0 0 24 24"><path d="M8 5h13M8 12h13M8 19h13M3 5h1M3 12h1M3 19h1"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4Z"/></symbol>
+    <symbol id="icon-series" viewBox="0 0 24 24"><path d="M5 5h14M8 2h8"/><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 13h8M8 17h5"/></symbol>
+    <symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.1M7 17.5h.1M12 6.5h5M12 17.5h5"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 9a8 8 0 0 0-14-4L3 8m0-5v5h5M4 15a8 8 0 0 0 14 4l3-3m0 5v-5h-5"/></symbol>
+    <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m7 3 14 9-14 9Z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M13 3h8v8M21 3l-11 11M9 5H3v16h16v-6"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M3 5h7l2 3h9v13H3Z"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  </svg>
+  <button class="mobile-toggle icon-button" id="mobile-toggle" aria-label="Open navigation" aria-expanded="false"><svg class="icon"><use href="#icon-menu"/></svg></button>
+  <button class="nav-shade" id="nav-shade" aria-label="Close navigation" hidden></button>
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#catalog" aria-label="Open Shelf home"><span class="brand-symbol"><svg class="icon"><use href="#icon-book"/></svg></span><span>shelf<span class="brand-period">.</span></span></a>
+    <div class="brand-caption">OPEN SHELF · DISCOVERY</div>
+    <nav aria-label="Main navigation">
+      <div class="nav-label">EXPLORE</div>
+      <a class="nav-link active" href="#catalog" data-page="catalog"><svg class="icon"><use href="#icon-grid"/></svg>Catalog<span class="nav-number" id="nav-books">0</span></a>
+      <a class="nav-link" href="#series" data-page="series"><svg class="icon"><use href="#icon-series"/></svg>Series<span class="nav-number" id="nav-series">0</span></a>
+      <a class="nav-link" href="#saved" data-page="saved"><svg class="icon"><use href="#icon-save"/></svg>Saved books<span class="nav-number" id="nav-saved">0</span></a>
+      <div class="nav-label manage-label">YOUR CONNECTIONS</div>
+      <a class="nav-link" href="#servers" data-page="servers"><svg class="icon"><use href="#icon-server"/></svg>Servers<span class="nav-number" id="nav-servers">0</span></a>
+      <a class="nav-link" href="#downloads" data-page="downloads"><svg class="icon"><use href="#icon-download"/></svg>Downloads<span class="nav-number" id="nav-downloads">0</span></a>
+      <a class="nav-link" href="#settings" data-page="settings"><svg class="icon"><use href="#icon-settings"/></svg>Settings</a>
+    </nav>
+    <div class="sidebar-note"><svg class="icon"><use href="#icon-folder"/></svg><p>Discover here.<br><strong>Read anywhere.</strong></p></div>
+    <div class="sidebar-status"><span class="status-dot"></span><div><strong>Your own instance</strong><span id="sidebar-activity">Ready to connect</span></div><span class="version">{{ version }}</span></div>
+  </aside>
+  <main>
+    <header class="topbar"><span>A WORLD OF BOOKS, WITHIN REACH.</span><button class="quiet-button" data-action="import"><svg class="icon"><use href="#icon-plus"/></svg>Add servers</button></header>
+    <div class="scan-banner" id="scan-banner" hidden><span class="status-dot pulse"></span><span id="scan-banner-text"></span><a href="#servers">View progress <span aria-hidden="true">→</span></a></div>
+    <section class="page-heading"><div><div class="eyebrow" id="page-eyebrow">YOUR CONNECTED LIBRARIES</div><h1 id="page-title">The catalog</h1><p id="page-subtitle">Good books are out there. Bring them into view.</p></div><div id="page-actions"></div></section>
+    <section id="stats" class="stat-grid" aria-label="Catalog overview"></section>
+    <section id="search-section" class="search-section">
+      <div class="search-top"><div class="search-field"><svg class="icon"><use href="#icon-search"/></svg><select id="search-scope" aria-label="Search in"><option value="all">Keywords</option><option value="author">Author</option><option value="title">Title</option><option value="series_query">Series</option></select><input id="search" type="search" placeholder="Search titles, authors, series, or subjects…" aria-label="Search catalog" autocomplete="off"><kbd>/</kbd></div><button type="button" class="button secondary" id="advanced-toggle" aria-expanded="false" aria-controls="advanced-form"><svg class="icon"><use href="#icon-settings"/></svg>Advanced search<span id="advanced-count" hidden></span></button></div>
+      <div class="filter-line" id="catalog-filters"><div class="filters">
+        <label><span class="sr-only">Language</span><select id="language-filter"><option value="">All languages</option></select></label>
+        <label><span class="sr-only">Subject</span><select id="tag-filter"><option value="">All subjects</option></select></label>
+        <label><span class="sr-only">Format</span><select id="format-filter"><option value="">All formats</option></select></label>
+        <label><span class="sr-only">Server</span><select id="source-filter"><option value="">All servers</option></select></label>
+        <button class="quiet-button" id="reset-filters" hidden>Reset</button>
+      </div><label class="sort-label">Sort <select id="sort"><option value="title">Title, A–Z</option><option value="author">Author</option><option value="newest">Recently indexed</option><option value="year">Publication year</option></select></label></div>
+      <form id="advanced-form" class="advanced-search" hidden>
+        <div class="advanced-heading"><div><h2>Find exactly what you have in mind.</h2><p>Every filled-in field must match. Leave a field empty to ignore it.</p></div><label class="match-label" for="advanced-text-match">Text matching<select id="advanced-text-match" name="text_match"><option value="words">All words</option><option value="phrase">Exact phrase</option><option value="exact">Exact field value</option></select></label></div>
+        <div class="advanced-grid">
+          <label class="advanced-field" for="advanced-author">Author<input id="advanced-author" name="author" class="text-input" placeholder="e.g. Dan Simmons" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-title">Title<input id="advanced-title" name="title" class="text-input" placeholder="Words in the title" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-series-query">Series<input id="advanced-series-query" name="series_query" class="text-input" placeholder="e.g. Hyperion" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-subject">Subject / genre<input id="advanced-subject" name="subject" class="text-input" placeholder="e.g. science fiction" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-publisher">Publisher<input id="advanced-publisher" name="publisher" class="text-input" placeholder="Publisher name" maxlength="500" autocomplete="off"></label>
+          <fieldset class="advanced-field"><legend>Publication year</legend><div class="range-fields"><input id="advanced-year-from" name="year_from" class="text-input" type="number" min="1" max="2999" placeholder="From" aria-label="Publication year from"><span>–</span><input id="advanced-year-to" name="year_to" class="text-input" type="number" min="1" max="2999" placeholder="To" aria-label="Publication year to"></div></fieldset>
+          <label class="advanced-field" for="advanced-identifier">ISBN / other identifier<input id="advanced-identifier" name="identifier" class="text-input" placeholder="ISBN, ASIN, DOI, or another ID" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-identifier-type">Identifier type<input id="advanced-identifier-type" name="identifier_type" class="text-input" placeholder="Any type, or e.g. isbn" maxlength="80" autocomplete="off"></label>
+          <fieldset class="advanced-field"><legend>Number in series</legend><div class="range-fields"><input id="advanced-series-from" name="series_from" class="text-input" type="number" step="any" placeholder="From" aria-label="Series number from"><span>–</span><input id="advanced-series-to" name="series_to" class="text-input" type="number" step="any" placeholder="To" aria-label="Series number to"></div></fieldset>
+          <label class="advanced-field" for="advanced-description">Description<input id="advanced-description" name="description" class="text-input" placeholder="Words in the book description" maxlength="500" autocomplete="off"></label>
+          <label class="advanced-field" for="advanced-library">Library<input id="advanced-library" name="library" class="text-input" placeholder="Library name on a server" maxlength="500" autocomplete="off"></label>
+          <div class="advanced-field"><span>Your books</span><div class="advanced-checks"><label><input id="advanced-saved" type="checkbox" name="saved" value="true">Saved only</label><label><input id="advanced-downloaded" type="checkbox" name="downloaded" value="true">Downloaded only</label></div></div>
+        </div>
+        <p class="field-note" id="advanced-match-help">All words matches complete words in any order. Author words must belong to the same author. Language, subject, format, and server filters above also apply.</p>
+        <p class="form-error" id="advanced-error" role="alert"></p>
+        <div class="advanced-actions"><button class="button primary" type="submit"><svg class="icon"><use href="#icon-search"/></svg>Apply search</button><button class="quiet-button" type="button" id="clear-advanced">Clear advanced fields</button></div>
+      </form>
+      <div id="active-filters" class="active-filters" aria-label="Active search filters" hidden></div>
+    </section>
+    <section class="results-bar" id="results-bar"><p id="results-count" role="status" aria-live="polite">Opening your catalog…</p><div class="results-buttons" id="results-buttons"></div><div class="view-toggle" id="view-toggle"><button data-view="grid" class="active" aria-label="Cover grid" aria-pressed="true"><svg class="icon"><use href="#icon-grid"/></svg></button><button data-view="rows" aria-label="Compact list" aria-pressed="false"><svg class="icon"><use href="#icon-lines"/></svg></button></div></section>
+    <section id="content" class="book-grid" aria-busy="true"><div class="loading">Opening the covers…</div></section>
+    <nav class="pagination" id="pagination" aria-label="Results pages"></nav>
+    <footer><span>Open Shelf · Your next chapter starts here.</span><span id="footer-status">A catalog of your connections</span></footer>
+  </main>
+  <dialog id="import-dialog" class="import-dialog" aria-labelledby="import-title">
+    <button class="dialog-close icon-button" data-close="import-dialog" aria-label="Close import"><svg class="icon"><use href="#icon-close"/></svg></button>
+    <form id="import-form"><div class="eyebrow">MAKE A CONNECTION</div><h2 id="import-title">Bring your libraries together.</h2><p class="dialog-intro">Add one server or paste a whole list. Open Shelf finds the addresses, skips duplicates, and brings the books into your catalog.</p>
+      <label class="field-label" for="server-text">Server addresses</label><textarea id="server-text" name="servers" rows="8" placeholder="https://your-library.example&#10;&#10;You can also paste a table containing server URLs." spellcheck="false" required></textarea>
+      <div class="import-bottom"><label class="file-picker"><svg class="icon"><use href="#icon-folder"/></svg>Choose a text file<input id="server-file" type="file" accept=".txt,.csv,.json,.md,.psv,.tsv"></label><span id="import-preview" aria-live="polite">HTTP and HTTPS addresses supported</span></div>
+      <label class="checkbox-field"><input id="index-after-import" type="checkbox" checked>Start indexing after import</label><p class="field-note">Metadata is indexed first. Books download when you choose them.</p>
+      <p id="import-error" class="form-error" role="alert"></p><button class="button primary" id="import-submit" type="submit">Import servers <svg class="icon"><use href="#icon-arrow"/></svg></button>
+    </form>
+  </dialog>
+  <dialog id="book-dialog" class="book-dialog" aria-labelledby="book-title"><button class="dialog-close icon-button" data-close="book-dialog" aria-label="Close book details"><svg class="icon"><use href="#icon-close"/></svg></button><div id="book-detail"></div></dialog>
+  <dialog id="queue-dialog" class="queue-dialog" aria-labelledby="queue-title"><button class="dialog-close icon-button" data-close="queue-dialog" aria-label="Close download selection"><svg class="icon"><use href="#icon-close"/></svg></button><form id="queue-form"><div class="eyebrow">TAKE THEM WITH YOU</div><h2 id="queue-title">Add books to Downloads</h2><p id="queue-summary"></p><label class="field-label" for="queue-format">File preference</label><select id="queue-format"><option value="auto">Preferred format, with alternatives</option><option>EPUB</option><option>PDF</option><option>AZW3</option><option>MOBI</option><option>FB2</option><option>TXT</option></select><p class="field-note">Already downloaded or queued books are skipped. Source availability is checked during the download.</p><div class="destination-note"><svg class="icon"><use href="#icon-folder"/></svg><span id="queue-destination"></span></div><p id="queue-error" class="form-error" role="alert"></p><button class="button primary" id="queue-submit" type="submit"><svg class="icon"><use href="#icon-download"/></svg>Add to queue</button></form></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="no-script">Enable JavaScript to import servers, browse the catalog, and manage downloads.</p></noscript>
+</body>
+</html>

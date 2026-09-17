@@ -1,0 +1,11 @@
+services:
+  openshelf:
+    build: .
+    ports:
+      - "127.0.0.1:${OPENSHELF_PORT:-8099}:8080"
+    volumes:
+      - ./data:/data
+      - ${OPENSHELF_DOWNLOADS:-./downloads}:/downloads
+    user: "${OPENSHELF_UID:-1000}:${OPENSHELF_GID:-1000}"
+    restart: unless-stopped
+    init: true
