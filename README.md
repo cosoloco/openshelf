@@ -19,10 +19,23 @@ cd openshelf
 
 The launcher creates the folders and runs the container with your user and group
 IDs so downloaded files belong to you. Open <http://localhost:8099>.
-The default Compose configuration publishes only
-to this computer. Catalog state persists in `./data`; completed books go in
-`./downloads`. To use a different host folder, set `OPENSHELF_DOWNLOADS` before
-starting Compose, or edit the bind mount in `compose.yaml`.
+The default Compose configuration publishes only to this computer.
+
+**Downloaded books are saved in the `downloads` folder inside the Open Shelf
+project folder on the computer running Docker.** For example, cloning into
+`~/openshelf` puts completed books in `~/openshelf/downloads`.
+
+| Contents | Folder on the Docker host, relative to `compose.yaml` | Path inside the container |
+| --- | --- | --- |
+| Catalog, settings, and download history | `./data` | `/data` |
+| Completed book files | `./downloads` | `/downloads` |
+
+These are bind mounts: the files are stored on your computer and remain there
+when the container stops or is replaced. The `/downloads` path shown in the
+app refers to the host folder above.
+
+To use a different host folder, set `OPENSHELF_DOWNLOADS` before starting
+Compose, or edit the bind mount in `compose.yaml`.
 
 ```sh
 OPENSHELF_DOWNLOADS=/path/to/books ./start.sh
@@ -45,10 +58,13 @@ uv sync --locked
 uv run openshelf --port 8099
 ```
 
-On macOS, metadata is stored in `~/Library/Application Support/OpenShelf`
-and downloads in `~/Downloads/OpenShelf`. On Linux, metadata defaults to
-`~/.local/share/OpenShelf`. Override `OPENSHELF_DATA_DIR` and
-`OPENSHELF_DOWNLOAD_DIR` to choose different locations.
+When running directly with Python, downloads default to `~/Downloads/OpenShelf`
+on both macOS and Linux. Metadata is stored in
+`~/Library/Application Support/OpenShelf` on macOS and
+`~/.local/share/OpenShelf` on Linux. These paths apply to the native Python
+installation; Docker uses the project folders described above. Override
+`OPENSHELF_DATA_DIR` and `OPENSHELF_DOWNLOAD_DIR` to choose different locations
+for a native installation.
 
 ## Using the app
 
@@ -59,8 +75,17 @@ and downloads in `~/Downloads/OpenShelf`. On Linux, metadata defaults to
    Series pages show members known to your index, not a complete bibliography.
 4. Download a book, selected books, or all results matching your current filters.
    EPUB is the default preference; other available formats can be selected.
-5. Follow progress under **Downloads**. Completed files can be imported into
-   Calibre directly from the configured folder. Saved books are a small shortlist.
+5. Follow progress under **Downloads**. When a job shows **Complete**, its file
+   is in the configured folder on the computer running Open Shelf
+   (`openshelf/downloads/` with the default Docker setup). Import it into Calibre
+   from that folder.
+6. To save a copy through your browser, open the completed book and click
+   **Save a browser copy**, or use the download arrow on its completed row in
+   **Downloads**. Your browser chooses where to save this copy on the computer
+   you are browsing from. Queuing a book in Open Shelf does not automatically
+   save it to your browser's usual Downloads folder.
+
+**Save for later** adds a book to your shortlist without downloading it.
 
 Indexing and download queues persist across restarts. Pausing retains completed
 work; failed server scans can resume from their last committed page. A completed
