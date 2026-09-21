@@ -105,13 +105,17 @@ Run both commands in the project folder containing `pyproject.toml`. On Windows,
 open PowerShell in the extracted or cloned project folder and run the commands
 above.
 
-When running directly with Python, downloads default to `~/Downloads/OpenShelf`
-on both macOS and Linux. Metadata is stored in
-`~/Library/Application Support/OpenShelf` on macOS and
-`~/.local/share/OpenShelf` on Linux. These paths apply to the native Python
-installation; Docker uses the project folders described above. Override
-`OPENSHELF_DATA_DIR` and `OPENSHELF_DOWNLOAD_DIR` to choose different locations
-for a native installation.
+When running directly with Python, downloads default to `~/Downloads/OpenShelf`.
+Metadata, including the catalog, server list, saved books, settings, and
+download history, is stored in `~/Library/Application Support/OpenShelf` on
+macOS and `~/.local/share/OpenShelf` on Linux and Windows. These paths apply to
+the native Python installation; Docker uses the project folders described above.
+Override `OPENSHELF_DATA_DIR` and `OPENSHELF_DOWNLOAD_DIR` to choose different
+locations for a native installation.
+
+To back up a native installation, stop Open Shelf and copy both the metadata
+folder above (which contains `openshelf.sqlite`) and your configured download
+folder. For Docker, back up the project’s `data` and `downloads` folders.
 
 To update with Git, stop Open Shelf, run `git pull`, then run `uv sync --locked`
 and start it again. To update a ZIP installation, download and extract the new
