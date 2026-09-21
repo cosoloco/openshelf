@@ -9,17 +9,30 @@ bundled. A local ebook collection is not required.
 
 ## Run with Docker
 
-Install Docker with Compose (Docker Desktop includes both), then:
+First get a copy of this project. Choose one:
+
+**With Git**
 
 ```sh
 git clone https://github.com/cosoloco/openshelf.git
 cd openshelf
+```
+
+**Without Git**
+
+On the GitHub repository page, choose **Code → Download ZIP**, extract the ZIP,
+and open a terminal in the extracted `openshelf` folder. It must contain
+`pyproject.toml` and `compose.yaml`.
+
+Install Docker with Compose (Docker Desktop includes both), then run Open Shelf.
+On macOS or Linux:
+
+```sh
 ./start.sh
 ```
 
-`start.sh` is a macOS/Linux launcher. On Windows, download the repository ZIP
-and extract it (Git is optional), open PowerShell in the extracted `openshelf`
-folder, then run:
+`start.sh` is a macOS/Linux launcher. On Windows, open PowerShell in the
+extracted or cloned project folder and run:
 
 ```powershell
 mkdir data
@@ -61,20 +74,36 @@ in their folders.
 In Settings, `/downloads` is the container's view of that host folder. Keep it
 set to `/downloads` unless you deliberately mount another path.
 
+To update with Git, stop Open Shelf, run `git pull` in the project folder, then
+start it again. To update a ZIP installation, download and extract the new ZIP
+into a new folder. For Docker, stop the old container and copy its `data` and
+`downloads` folders into the new project folder before starting the new copy.
+Keep the old folder until you have confirmed the updated app opens normally.
+
 ## Run directly
 
-Install Python 3.12 or newer and [uv](https://docs.astral.sh/uv/), then:
+First get a copy of this project. With Git:
+
+```sh
+git clone https://github.com/cosoloco/openshelf.git
+cd openshelf
+```
+
+Without Git, choose **Code → Download ZIP** on the GitHub repository page and
+extract it. Open a terminal in the extracted `openshelf` folder; it must contain
+`pyproject.toml`. You do not run these commands from the `uv` installation
+folder or Python installation folder.
+
+Install Python 3.12 or newer and [uv](https://docs.astral.sh/uv/), then run:
 
 ```sh
 uv sync --locked
 uv run openshelf --port 8099
 ```
 
-Run both commands in the project folder containing `pyproject.toml`. On
-Windows, you can use **Code → Download ZIP** on GitHub instead of installing
-Git: extract the ZIP, open PowerShell in the extracted `openshelf` folder, and
-run the commands above. The `uv` installation folder and Python installation
-folder are not the right working directory.
+Run both commands in the project folder containing `pyproject.toml`. On Windows,
+open PowerShell in the extracted or cloned project folder and run the commands
+above.
 
 When running directly with Python, downloads default to `~/Downloads/OpenShelf`
 on both macOS and Linux. Metadata is stored in
@@ -83,6 +112,12 @@ on both macOS and Linux. Metadata is stored in
 installation; Docker uses the project folders described above. Override
 `OPENSHELF_DATA_DIR` and `OPENSHELF_DOWNLOAD_DIR` to choose different locations
 for a native installation.
+
+To update with Git, stop Open Shelf, run `git pull`, then run `uv sync --locked`
+and start it again. To update a ZIP installation, download and extract the new
+ZIP into a new folder, then run `uv sync --locked` there. Native catalog and
+download folders are outside the project folder by default, so the new copy
+will use the same library state.
 
 ## Using the app
 
