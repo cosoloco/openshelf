@@ -17,6 +17,18 @@ cd openshelf
 ./start.sh
 ```
 
+`start.sh` is a macOS/Linux launcher. On Windows, download the repository ZIP
+and extract it (Git is optional), open PowerShell in the extracted `openshelf`
+folder, then run:
+
+```powershell
+mkdir data
+mkdir downloads
+docker compose up --build -d
+```
+
+Docker Desktop includes Compose; confirm it with `docker compose version`.
+
 The launcher creates the folders and runs the container with your user and group
 IDs so downloaded files belong to you. Open <http://localhost:8099>.
 The default Compose configuration publishes only to this computer.
@@ -57,6 +69,12 @@ Install Python 3.12 or newer and [uv](https://docs.astral.sh/uv/), then:
 uv sync --locked
 uv run openshelf --port 8099
 ```
+
+Run both commands in the project folder containing `pyproject.toml`. On
+Windows, you can use **Code → Download ZIP** on GitHub instead of installing
+Git: extract the ZIP, open PowerShell in the extracted `openshelf` folder, and
+run the commands above. The `uv` installation folder and Python installation
+folder are not the right working directory.
 
 When running directly with Python, downloads default to `~/Downloads/OpenShelf`
 on both macOS and Linux. Metadata is stored in

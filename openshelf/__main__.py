@@ -11,6 +11,33 @@ from .app import create_app
 from .config import Config
 
 
+def acquire_app_lock(path):
+    """Hold an advisory one-byte lock for the lifetime of this process."""
+    lock = path.open("a+b")
+    if os.name == "nt":
+        import msvcrt
+
+        lock.seek(0, os.SEEK_END)
+        if lock.tell() == 0:
+            lock.write(b"0")
+            lock.flush()
+        lock.seek(0)
+        try:
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as error:
+            lock.close()
+            raise BlockingIOError from error
+    else:
+        import fcntl
+
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            lock.close()
+            raise
+    return lock
+
+
 def main():
     parser = argparse.ArgumentParser(description="Open Shelf remote catalog and download manager")
     parser.add_argument("--host", default="127.0.0.1")
@@ -21,10 +48,8 @@ def main():
     config = Config.from_env()
     config.prepare()
     # A single process owns the durable queues. Threads share per-origin limits.
-    import fcntl
-    lock = (config.data_dir / ".app.lock").open("a")
     try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        lock = acquire_app_lock(config.data_dir / ".app.lock")
     except BlockingIOError:
         parser.error("Another Open Shelf process is already using this data directory.")
     app = create_app(config, start_workers=not args.no_workers)
