@@ -195,7 +195,8 @@ def run_download(database, network, job, stop):
                 staging = destination / f".openshelf-{job_id}.part"
                 try:
                     shutil.copyfile(partial, staging)
-                    with staging.open("rb") as file:
+                    # Windows rejects fsync on a read-only descriptor.
+                    with staging.open("r+b") as file:
                         os.fsync(file.fileno())
                     with database.connection() as db:
                         db.execute("BEGIN IMMEDIATE")
