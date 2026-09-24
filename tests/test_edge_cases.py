@@ -83,3 +83,28 @@ def test_importing_duplicate_does_not_restart_or_reenable_source(app, client, fa
     assert client.get("/api/sources").json["sources"][0]["status"] == "disabled"
     with app.extensions["database"].connection() as db:
         assert db.execute("SELECT COUNT(*) FROM scans").fetchone()[0] == 1
+
+
+def test_removing_source_purges_its_unshared_catalog_records(app, client, fake_server):
+    remote = fake_server()
+    source = client.post("/api/sources/import", json={"text": remote["url"]}).json["source_ids"][0]
+    scan_all(app)
+    response = client.delete(f"/api/sources/{source}", json={})
+    assert response.status_code == 200
+    assert response.json["records"] == 4
+    assert response.json["orphaned"] == 4
+    assert client.get("/api/sources").json["sources"] == []
+    assert client.get("/api/books").json["total"] == 0
+    assert client.delete(f"/api/sources/{source}", json={}).status_code == 404
+
+
+def test_removing_source_keeps_books_available_from_another_source(app, client, fake_server):
+    first, second = fake_server(), fake_server()
+    sources = client.post("/api/sources/import", json={"text": first["url"] + "\n" + second["url"]}).json["source_ids"]
+    scan_all(app)
+    assert client.get("/api/books").json["books"][0]["source_count"] == 2
+    response = client.delete(f"/api/sources/{sources[0]}", json={})
+    assert response.json["orphaned"] == 0
+    listing = client.get("/api/books").json
+    assert listing["total"] == 4
+    assert all(book["source_count"] == 1 for book in listing["books"])

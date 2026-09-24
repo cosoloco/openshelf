@@ -226,6 +226,28 @@ def create_app(config=None, *, start_workers=False):
             raise ValueError("Unknown server action.")
         return jsonify(ok=True)
 
+    @app.delete("/api/sources/<int:source_id>")
+    def remove_source(source_id):
+        with database.connection() as db:
+            source = db.execute("SELECT id,name,records FROM sources WHERE id=?", (source_id,)).fetchone()
+            if not source:
+                abort(404, "Server not found.")
+            # A running worker checks its queue row between requests. Marking a
+            # job queued makes it stop and choose another remaining source.
+            db.execute("UPDATE scans SET status='paused',updated_at=? WHERE source_id=? AND status IN ('running','queued')",
+                       (timestamp(), source_id))
+            db.execute("UPDATE downloads SET status='queued',source_id=NULL,error='',updated_at=? WHERE source_id=? AND status='running'",
+                       (timestamp(), source_id))
+            db.execute("DELETE FROM sources WHERE id=?", (source_id,))
+            orphaned = [row[0] for row in db.execute("SELECT b.id FROM books b WHERE NOT EXISTS(SELECT 1 FROM copies c WHERE c.book_id=b.id)")]
+            if orphaned:
+                marks = ",".join("?" for _ in orphaned)
+                db.execute(f"DELETE FROM saved WHERE book_id IN ({marks})", orphaned)
+                db.execute(f"DELETE FROM downloads WHERE book_id IN ({marks})", orphaned)
+                db.execute(f"DELETE FROM book_tags WHERE book_id IN ({marks})", orphaned)
+                db.execute(f"DELETE FROM books WHERE id IN ({marks})", orphaned)
+        return jsonify(removed=source["name"], records=source["records"], orphaned=len(orphaned))
+
     @app.get("/api/sources/export")
     def export_sources():
         with database.connection() as db:
