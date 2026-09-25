@@ -9,6 +9,58 @@ from werkzeug.serving import make_server, WSGIRequestHandler
 
 
 @pytest.mark.skipif(not os.environ.get("OPENSHELF_BROWSER_TESTS"), reason="Set OPENSHELF_BROWSER_TESTS=1 with Chromium installed")
+def test_remove_server_uses_app_dialog_and_recovers_from_failure(app, client):
+    source_id = client.post("/api/sources/import", json={"text": "http://example.test", "index": False}).json["source_ids"][0]
+    server = make_server("127.0.0.1", 0, app, threaded=True)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page(viewport={"width":390, "height":844})
+            errors, deletes = [], []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            page.on("request", lambda request: deletes.append(request.url) if request.method == "DELETE" else None)
+            page.add_init_script("window.confirm = () => { throw new Error('Native dialogs must not be used'); };")
+            page.goto(f"http://127.0.0.1:{server.server_port}/#servers")
+            remove = page.locator(f'[data-remove-source="{source_id}"]')
+            dialog = page.locator('#remove-source-dialog')
+            remove.click()
+            expect(dialog).to_be_visible()
+            expect(page.locator('#remove-source-cancel')).to_be_focused()
+            expect(dialog).to_contain_text('http://example.test')
+            assert not page.evaluate('document.documentElement.scrollWidth > innerWidth')
+            page.locator('#remove-source-cancel').click()
+            expect(dialog).to_be_hidden()
+            expect(remove).to_be_focused()
+            remove.click()
+            page.keyboard.press('Escape')
+            expect(dialog).to_be_hidden()
+            remove.click()
+            page.mouse.click(1, 1)
+            expect(dialog).to_be_hidden()
+            assert deletes == []
+            assert len(client.get('/api/sources').json['sources']) == 1
+            pattern = f'**/api/sources/{source_id}'
+            page.route(pattern, lambda route: route.fulfill(status=503, content_type='application/json', body='{"error":"Please retry removal."}'))
+            remove.click()
+            page.locator('#remove-source-submit').click()
+            expect(page.locator('#remove-source-error')).to_have_text('Please retry removal.')
+            expect(dialog).to_be_visible()
+            expect(page.locator('#remove-source-submit')).to_be_enabled()
+            page.unroute(pattern)
+            page.locator('#remove-source-submit').click()
+            expect(dialog).to_be_hidden()
+            expect(page.locator('#results-count')).to_have_text('No servers connected')
+            assert client.get('/api/sources').json['sources'] == []
+            assert len(deletes) == 2
+            assert errors == []
+            browser.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+@pytest.mark.skipif(not os.environ.get("OPENSHELF_BROWSER_TESTS"), reason="Set OPENSHELF_BROWSER_TESTS=1 with Chromium installed")
 def test_empty_install_import_browse_save_and_download(app, fake_server, tmp_path):
     remote, opds = fake_server(), fake_server(opds=True)
 

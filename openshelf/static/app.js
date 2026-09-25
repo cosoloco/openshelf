@@ -395,11 +395,13 @@ async function act(event) {
     if (node.dataset.sourceAction) { await api(`/api/sources/${node.dataset.sourceId}/action`,'POST',{action:node.dataset.sourceAction}); await refreshMeta(); await renderSources(renderVersion,true); return; }
     if (node.dataset.removeSource) {
       const source = sourcesData.find(item => String(item.id) === node.dataset.removeSource);
-      if (!source || !window.confirm(`Remove ${source.name}?\n\nThis removes the server and its indexed catalog records. Books supplied by another connected server stay available. Downloaded files in your chosen folder are not deleted.`)) return;
-      const response = await api(`/api/sources/${node.dataset.removeSource}`,'DELETE');
-      await refreshMeta();
-      await renderSources(renderVersion,true);
-      toast(`${response.removed} removed${response.orphaned ? `; ${number(response.orphaned)} catalog ${response.orphaned === 1 ? 'book' : 'books'} removed` : ''}.`);
+      if (!source) return;
+      $('#remove-source-form').dataset.sourceId = String(source.id);
+      $('#remove-source-name').textContent = source.name;
+      $('#remove-source-url').textContent = source.url;
+      $('#remove-source-error').textContent = '';
+      $('#remove-source-dialog').showModal();
+      $('#remove-source-cancel').focus();
       return;
     }
     if (node.dataset.serverFilter != null) { serverFilter = node.dataset.serverFilter; await renderSources(renderVersion,true); return; }
@@ -457,7 +459,35 @@ document.addEventListener('change',event => {
   if (event.target.id === 'select-page') { const checked = event.target.checked; for (const b of result.books) checked ? selected.add(b.id) : selected.delete(b.id); $$('[data-select]').forEach(c => { c.checked = selected.has(c.dataset.select); c.closest('.book-card').classList.toggle('selected',c.checked); }); selectionBar(); }
 });
 document.addEventListener('input',event => { if (event.target.id === 'server-search') { serverQuery = event.target.value; sourceRows(); } });
-for (const dialog of $$('dialog')) dialog.addEventListener('click',event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
+for (const dialog of $$('dialog')) dialog.addEventListener('click',event => { if (event.target === dialog && dialog.getAttribute('aria-busy') !== 'true') { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
+
+$('#remove-source-dialog').addEventListener('cancel', event => {
+  if (event.currentTarget.getAttribute('aria-busy') === 'true') event.preventDefault();
+});
+$('#remove-source-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const dialog = $('#remove-source-dialog');
+  if (dialog.getAttribute('aria-busy') === 'true') return;
+  const sourceId = event.currentTarget.dataset.sourceId;
+  dialog.setAttribute('aria-busy', 'true');
+  $$('button', dialog).forEach(button => { button.disabled = true; });
+  $('#remove-source-submit').textContent = 'Removing…';
+  $('#remove-source-error').textContent = '';
+  try {
+    const response = await api(`/api/sources/${sourceId}`, 'DELETE');
+    dialog.close();
+    selected.clear();
+    toast(`${response.removed} removed${response.orphaned ? `; ${number(response.orphaned)} catalog ${response.orphaned === 1 ? 'book' : 'books'} removed` : ''}.`);
+    try { await refreshMeta(); await render(); }
+    catch (_) { toast('Server removed. Reload the page to refresh the catalog.', true); }
+  } catch (error) {
+    $('#remove-source-error').textContent = error.message;
+  } finally {
+    dialog.setAttribute('aria-busy', 'false');
+    $$('button', dialog).forEach(button => { button.disabled = false; });
+    $('#remove-source-submit').textContent = 'Remove server';
+  }
+});
 
 $('#server-text').addEventListener('input',() => {
   clearTimeout(importTimer);

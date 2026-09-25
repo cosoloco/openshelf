@@ -103,6 +103,19 @@
   </dialog>
   <dialog id="book-dialog" class="book-dialog" aria-labelledby="book-title"><button class="dialog-close icon-button" data-close="book-dialog" aria-label="Close book details"><svg class="icon"><use href="#icon-close"/></svg></button><div id="book-detail"></div></dialog>
   <dialog id="queue-dialog" class="queue-dialog" aria-labelledby="queue-title"><button class="dialog-close icon-button" data-close="queue-dialog" aria-label="Close download selection"><svg class="icon"><use href="#icon-close"/></svg></button><form id="queue-form"><div class="eyebrow">TAKE THEM WITH YOU</div><h2 id="queue-title">Add books to Downloads</h2><p id="queue-summary"></p><label class="field-label" for="queue-format">File preference</label><select id="queue-format"><option value="auto">Preferred format, with alternatives</option><option>EPUB</option><option>PDF</option><option>AZW3</option><option>MOBI</option><option>FB2</option><option>TXT</option></select><p class="field-note">Already downloaded or queued books are skipped. Source availability is checked during the download.</p><div class="destination-note"><svg class="icon"><use href="#icon-folder"/></svg><span id="queue-destination"></span></div><p id="queue-error" class="form-error" role="alert"></p><button class="button primary" id="queue-submit" type="submit"><svg class="icon"><use href="#icon-download"/></svg>Add to queue</button></form></dialog>
+  <dialog id="remove-source-dialog" class="queue-dialog remove-source-dialog" aria-labelledby="remove-source-title" aria-describedby="remove-source-description">
+    <form id="remove-source-form">
+      <h2 id="remove-source-title">Remove server?</h2>
+      <p id="remove-source-name" class="remove-source-name"></p>
+      <p id="remove-source-url" class="field-note"></p>
+      <p id="remove-source-description" class="field-note">This removes the connection and its indexed records. Books supplied by another server remain. Books unique to this server are removed along with their saved entries and download history. Downloaded files on your computer are kept. You can import the server again later.</p>
+      <p id="remove-source-error" class="form-error" role="alert"></p>
+      <div class="remove-source-actions">
+        <button id="remove-source-cancel" class="button secondary" type="button" data-close="remove-source-dialog" autofocus>Cancel</button>
+        <button id="remove-source-submit" class="button danger" type="submit">Remove server</button>
+      </div>
+    </form>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <noscript><p class="no-script">Enable JavaScript to import servers, browse the catalog, and manage downloads.</p></noscript>
 </body>
